@@ -8,24 +8,6 @@ import sklearn
 import torch
 from torch.utils.data import Dataset, DataLoader
 
-def tensor2numpy(x):
-    if type(x) == torch.Tensor:
-        x = x.cpu().detach().numpy()
-    return x
-
-def list2cuda(list, cuda = True):
-    array = np.array(list)
-    return numpy2cuda(array, cuda = cuda)
-
-def numpy2cuda(array, cuda = True):
-    tensor = torch.from_numpy(array)
-    return tensor2cuda(tensor, cuda = cuda)
-
-def tensor2cuda(tensor, cuda = True):
-    if torch.cuda.is_available() and cuda:
-        tensor = tensor.cuda()
-    return tensor
-
 def exAUC(torch_samples, attributions, ref_samples, model, pct_exclude = np.linspace(0,1,21).tolist()):
     '''
     '''
