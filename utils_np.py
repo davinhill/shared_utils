@@ -24,6 +24,18 @@ def exp_kernel_func(mat, lam=0.5, q=2):
     '''
     return np.exp(-lam * (mat ** q))
 
+def flatten(array, dim = 1):
+    '''
+    equivalent to torch.flatten for numpy 
+
+    args:
+        array (np or tensor)
+        start_dim: function will flatten all dimensions after start_dim
+    '''
+
+    input_shape = array.shape
+    return array.reshape(list(input_shape[:dim]) + [-1])
+
 
 def np_insert(matrix, vector, index):
     '''
