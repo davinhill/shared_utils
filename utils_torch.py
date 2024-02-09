@@ -11,19 +11,16 @@ def tensor2numpy(x):
         x = x.cpu().detach().numpy()
     return x
 
-def list2cuda(list):
-    # adapted from https://github.com/MadryLab/robustness
+def list2cuda(list, cuda = True):
     array = np.array(list)
-    return numpy2cuda(array)
+    return numpy2cuda(array, cuda = cuda)
 
-def numpy2cuda(array):
-    # function borrowed from https://github.com/MadryLab/robustness
+def numpy2cuda(array, cuda = True):
     tensor = torch.from_numpy(array)
-    return tensor2cuda(tensor)
+    return tensor2cuda(tensor, cuda = cuda)
 
-def tensor2cuda(tensor):
-    # function borrowed from https://github.com/MadryLab/robustness
-    if torch.cuda.is_available():
+def tensor2cuda(tensor, cuda = True):
+    if torch.cuda.is_available() and cuda:
         tensor = tensor.cuda()
     return tensor
 
@@ -103,6 +100,33 @@ def relu2softplus(model, softplus_beta = 1):
             setattr(model, child_name, nn.Softplus(beta = softplus_beta, threshold = 20))
         else:
             relu2softplus(child)
+
+def freeze_layers(model):
+    # freeze all weights in pytorch model
+    for parameter in model.parameters():
+        parameter.requires_grad = False
+
+
+def unfreeze_layers(model):
+    # unfreeze all weights in pytorch model
+    for parameter in model.parameters():
+        parameter.requires_grad = True
+
+def convert_dataparallel(state_dict):
+    '''
+    when wrapping a model with nn.DataParallel, the layers are prepended with 'module.'.
+    This function 1) checks if layers are prepended with 'module.', then 2) removes this prepended layer name.
+    '''
+    from collections import OrderedDict
+    new_state_dict = OrderedDict()
+    for k, v in state_dict.items():
+        prepend = k[:7]
+        if prepend == 'module.':
+            name = k[7:] # remove 'module.'
+        else:
+            name = k
+        new_state_dict[name] = v
+    return new_state_dict
 
 def exp_kernel_func(mat, lam=0.5, q=2, scaling = 0):
     '''
