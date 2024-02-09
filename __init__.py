@@ -1,5 +1,6 @@
 __all__ = [
-    'utils_np',
-    'utils_io',
-    'utils_torch',
+    'utils',
+    'utils_plot',
+    'utils_slurm',
+    'utils_xai',
     ]

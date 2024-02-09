@@ -2,9 +2,9 @@ import os
 import warnings
 import sys
 sys.path.append('./')
-from utils_io import make_dir
+from shared_utils.utils import make_dir
 
-def submit_slurm(python_script, job_file,job_out_dir = '', conda_env='a100', partition='gpu',mem=32, time_hrs = -1, n_gpu = 1, n_cpu = 1, exclude_nodes = None, job_name = 'script', prioritize_cpu_nodes = True, extra_line='', nodelist = None, gpu_type = 'v100-sxm2', requeue = False):
+def submit_slurm(python_script, job_file,job_out_dir = '', conda_env='a100', partition='gpu',mem=32, time_hrs = -1, n_gpu = 1, n_cpu = 4, exclude_nodes = None, job_name = 'script', prioritize_cpu_nodes = True, extra_line='', nodelist = None, gpu_type = 'v100-sxm2', requeue = False):
     '''
     submit batch job to slurm
 
@@ -91,7 +91,7 @@ def submit_slurm(python_script, job_file,job_out_dir = '', conda_env='a100', par
     os.system("sbatch %s" %job_file)
 
 
-def submit_slurm_ch(python_script, job_file, conda_env='a40', partition='linux12h',mem=32, time_hrs = -1, job_name = 'script', nodelist = None, n_cpu = 1, requeue = False):
+def submit_slurm_ch(python_script, job_file, conda_env='a40', partition='linux12h',mem=32, time_hrs = -1, job_name = 'script', nodelist = None, n_cpu = 4, requeue = False):
     '''
     args:
         prioritize_cpu_nodes: if using ai-jumpstart for cpu jobs, prioritize cpu-only nodes if True.
