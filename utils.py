@@ -211,6 +211,67 @@ def superpixel_transform_matrix(n_features, superpixel_size):
     return t_matrix
 
 
+def invert_permutation(p):
+    '''
+    Given a permutation p, return the inverse permutation s such that p[s] = np.arange(p.size)
+    '''
+    s = np.empty_like(p)
+    s[p] = np.arange(p.size)
+    return s
+
+def invert_permutation_matrix(p):
+    '''
+    Given a permutation p, return the inverse permutation s such that p[s] = np.arange(p.size)
+
+    Input is a matrix of permutations. Output is a matrix of inverse permutations.
+    '''
+    if type(p) == np.ndarray:
+        output = np.empty_like(p)
+        mapping = np.arange(p.shape[1]).reshape(1,-1).repeat(p.shape[0], axis = 0)
+        for i in range(output.shape[0]):
+            output[i,p[i,:]] = mapping[i,:]
+        return output
+    elif type(p) == torch.Tensor:
+        output = torch.zeros_like(p)
+        return output.scatter_(1, p, torch.arange(p.size(1)).expand(p.size(0),-1))
+
+def sample_permutation_3d(n_samples, n_features, n_permutations):
+    '''
+    sample permutations
+    
+    args:
+        n_samples: (int) number of samples
+        n_features: (int) number of features
+        n_permutations: (int) number of permutations to sample
+
+    returns: 
+        samples x features x n_permutations numpy matrix
+    '''
+
+    samples = np.zeros((n_samples,n_features, n_permutations)).astype('int')
+    for i in range(n_samples):
+        samples[i,...] = sample_permutation(n_permutations, n_features).transpose()
+    return samples
+
+def sample_permutation(n, d):
+    '''
+    sample n permutations
+    
+    args:
+        n: (int) number of permutations
+        d: (int) dimension
+
+    returns: 
+        n x d numpy matrix
+    '''
+
+    samples = np.zeros((n,d)).astype('int')
+    for i in range(n):
+        samples[i,:] = np.random.permutation(d)
+    return samples
+
+
+
 
 #######################################################################
 #  **********   *******   *******     ******  **      **
