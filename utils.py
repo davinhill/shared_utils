@@ -4,6 +4,8 @@ import numpy as np
 import pickle
 import torch
 import torch.nn.functional as F
+from itertools import permutations
+import math
 
 #######################################################################
 #  **   *******  
@@ -235,7 +237,7 @@ def invert_permutation_matrix(p):
         output = torch.zeros_like(p)
         return output.scatter_(1, p, torch.arange(p.size(1)).expand(p.size(0),-1))
 
-def sample_permutation_3d(n_samples, n_features, n_permutations):
+def sample_permutation_3d(n_samples, n_features, n_permutations, reduce_perm_samples = False):
     '''
     sample permutations
     
@@ -243,31 +245,49 @@ def sample_permutation_3d(n_samples, n_features, n_permutations):
         n_samples: (int) number of samples
         n_features: (int) number of features
         n_permutations: (int) number of permutations to sample
+        reduce_perm_samples: (bool) if True, check if total number of permutations is less than n_permutations. If so, reduce n_permutations to the total number of permutations.
 
     returns: 
         samples x features x n_permutations numpy matrix
     '''
 
+    if reduce_perm_samples and math.factorial(n_features) <= n_permutations: # if number of permutations is less than n_perm_samples, calculate all permutations
+        perm_list = list(permutations(range(n_features)))
+        n_permutations = len(perm_list)
+
     samples = np.zeros((n_samples,n_features, n_permutations)).astype('int')
     for i in range(n_samples):
-        samples[i,...] = sample_permutation(n_permutations, n_features).transpose()
+        if reduce_perm_samples and math.factorial(n_features) <= n_permutations:
+            samples[i,...] = np.array(perm_list).transpose()
+        else:
+            samples[i,...] = sample_permutation(n_permutations, n_features).transpose()
     return samples
 
-def sample_permutation(n, d):
+def sample_permutation(n, d, reduce_perm_samples = False):
     '''
     sample n permutations
     
     args:
         n: (int) number of permutations
         d: (int) dimension
+        reduce_perm_samples: (bool) if True, check if total number of permutations is less than n_permutations. If so, reduce n_permutations to the total number of permutations.
 
     returns: 
         n x d numpy matrix
     '''
 
+    if reduce_perm_samples and math.factorial(d) <= n: # if number of permutations is less than n_perm_samples, calculate all permutations
+        perm_list = list(permutations(range(d)))
+        n = len(perm_list)
+
     samples = np.zeros((n,d)).astype('int')
-    for i in range(n):
-        samples[i,:] = np.random.permutation(d)
+
+    if math.factorial(d) == n: # if number of permutation samples == total number of permutations, return all permutations
+        perm_list = list(permutations(range(d)))
+        samples = np.array(perm_list)
+    else:
+        for i in range(n):
+            samples[i,:] = np.random.permutation(d)
     return samples
 
 
