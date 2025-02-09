@@ -4,7 +4,7 @@ import numpy as np
 import pickle
 import torch
 import torch.nn.functional as F
-from itertools import permutations
+from itertools import permutations, chain, combinations
 import math
 
 #######################################################################
@@ -212,10 +212,9 @@ def superpixel_transform_matrix(n_features, superpixel_size):
         t_matrix[grouped_features,i] = 1
     return t_matrix
 
-
 def invert_permutation(p):
     '''
-    Given a permutation p, return the inverse permutation s such that p[s] = np.arange(p.size)
+    Given a permutation p of a vector [1,...len(p)], return the inverse permutation s such that p[s] = np.arange(len(p))
     '''
     s = np.empty_like(p)
     s[p] = np.arange(p.size)
@@ -223,7 +222,7 @@ def invert_permutation(p):
 
 def invert_permutation_matrix(p):
     '''
-    Given a permutation p, return the inverse permutation s such that p[s] = np.arange(p.size)
+    Given a permutation p of a vector [1,...len(p)], return the inverse permutation s such that p[s] = np.arange(len(p))
 
     Input is a matrix of permutations. Output is a matrix of inverse permutations.
     '''
@@ -239,7 +238,7 @@ def invert_permutation_matrix(p):
 
 def sample_permutation_3d(n_samples, n_features, n_permutations, reduce_perm_samples = False):
     '''
-    sample permutations
+    sample n_samples permutations for vector {1,...,n_features}
     
     args:
         n_samples: (int) number of samples
@@ -265,7 +264,7 @@ def sample_permutation_3d(n_samples, n_features, n_permutations, reduce_perm_sam
 
 def sample_permutation(n, d, reduce_perm_samples = False):
     '''
-    sample n permutations
+    sample n permutations for vector {1,...,d}
     
     args:
         n: (int) number of permutations
@@ -276,7 +275,7 @@ def sample_permutation(n, d, reduce_perm_samples = False):
         n x d numpy matrix
     '''
 
-    if reduce_perm_samples and math.factorial(d) <= n: # if number of permutations is less than n_perm_samples, calculate all permutations
+    if reduce_perm_samples and math.factorial(d) <= n: # if number of permutations is less than n_perm_samples, calculate all permutations and reduce the number of returned samples
         perm_list = list(permutations(range(d)))
         n = len(perm_list)
 
@@ -291,6 +290,32 @@ def sample_permutation(n, d, reduce_perm_samples = False):
     return samples
 
 
+def list_permutations(vector):
+    '''
+    list all permutations of a numpy vector
+    '''
+    output = list(permutations(vector))
+    output = [np.array(x) for x in output]
+    return output
+
+def list_power_set(vector):
+    '''
+    Given a numpy vector, list all possible subsets of the vector
+    '''
+
+    subsets = list(chain.from_iterable(combinations(vector, r) for r in range(len(vector) + 1)))
+    subsets = [np.array(subset) for subset in subsets]
+    return subsets
+
+def invert_permutation_subset(vector):
+    '''
+    Given a permutation p of a vector of positive integers, return the inverse permutation s. Does not assume that the vector contains all integers from 0 to n-1.
+    '''
+    # tmp_vector = np.arange(vector.max()+1)
+    tmp_vector = np.sort(vector)
+    output = np.zeros_like(np.arange(vector.max()+1))
+    output[vector] = tmp_vector
+    return output[tmp_vector]
 
 
 #######################################################################
