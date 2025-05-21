@@ -66,6 +66,10 @@ def get_filedir(file):
     dname = os.path.dirname(abspath)
     return dname
 
+def make_dir_fromfile(filepath):
+    dirpath = os.path.dirname(filepath)
+    make_dir(dirpath)
+
 def list_fonts():
     '''
     print fonts available in system
@@ -357,6 +361,17 @@ def auto2cuda(obj):
         return tensor2cuda(obj)
     else:
         raise ValueError('input must be list, np array, or pytorch tensor')
+
+def auto2numpy(obj):
+    # Checks object type, then calls corresponding function
+    if type(obj) == list:
+        return np.array(obj)
+    elif type(obj) == np.ndarray:
+        return obj
+    elif type(obj) == torch.Tensor:
+        return tensor2numpy(obj)
+    else:
+        raise ValueError('np array, or pytorch tensor')
 
 def batch2cuda(list):
     # Input: list of objects to convert. Iterates auto2cuda over list
